@@ -3,225 +3,543 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Цикл создания высшего проекта — Timeline</title>
+<title>От диагностики к SCIR — эволюция исследования</title>
 <style>
   :root{
-    --bg:#0b1020;
-    --bg-soft:#121a33;
-    --ink:#e8ecff;
-    --muted:#9aa7c7;
-    --line:#2a3557;
-    --c1:#5b8cff;
-    --c2:#8b5bff;
-    --c3:#00d1b2;
-    --c4:#ffb020;
-    --c5:#ff5b8c;
-    --c6:#3ddc84;
-    --c7:#ff7a45;
+    --bg:#070b16;
+    --bg-soft:#0f1730;
+    --ink:#e9edff;
+    --muted:#94a3c4;
+    --line:#26325a;
+    --diag:#5b8cff;     /* диагностика */
+    --fail:#ff5b6e;     /* провал */
+    --insight:#ffb020;  /* инсайт */
+    --hypo:#8b5bff;     /* гипотеза */
+    --method:#00d1b2;   /* метод SCIR */
+    --valid:#3ddc84;    /* валидация */
+    --res:#ff8a3d;      /* ресурс */
+    --concl:#ff5b8c;    /* вывод */
+    --ok:#3ddc84;
+    --bad:#ff5b6e;
   }
   *{box-sizing:border-box}
   html,body{
     margin:0;padding:0;
-    background:radial-gradient(1200px 600px at 20% -10%, #1b2450 0%, var(--bg) 55%, #070a15 100%);
+    background:radial-gradient(1200px 600px at 15% -10%, #16204a 0%, var(--bg) 55%, #04060d 100%);
     color:var(--ink);
     font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
-  .wrap{max-width:1200px;margin:0 auto;padding:56px 24px 80px;}
-  header h1{font-size:clamp(28px,4vw,48px);margin:0 0 8px;letter-spacing:-0.02em;line-height:1.05;}
+  .wrap{max-width:1180px;margin:0 auto;padding:56px 24px 96px;}
+
+  /* ---------- HERO ---------- */
+  header h1{
+    font-size:clamp(28px,4vw,50px);margin:0 0 10px;
+    letter-spacing:-0.02em;line-height:1.04;
+  }
   header h1 span{
-    background:linear-gradient(90deg,var(--c1),var(--c3),var(--c4));
+    background:linear-gradient(90deg,var(--diag),var(--method),var(--valid));
     -webkit-background-clip:text;background-clip:text;color:transparent;
   }
-  header p{color:var(--muted);max-width:760px;line-height:1.55;margin:0 0 40px;font-size:17px;}
+  header p{color:var(--muted);max-width:820px;line-height:1.6;margin:0 0 18px;font-size:17px;}
+  .hero-meta{
+    display:flex;flex-wrap:wrap;gap:10px;margin:0 0 44px;
+  }
+  .pill{
+    font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+    color:#c9d3ff;background:rgba(91,140,255,.10);
+    border:1px solid rgba(91,140,255,.35);
+    padding:6px 12px;border-radius:999px;
+  }
+  .pill.arrow{background:rgba(0,209,178,.10);border-color:rgba(0,209,178,.35);color:#9ff3e6;}
 
-  .timeline{position:relative;padding:8px 0;}
+  /* ---------- STAGE BAR ---------- */
+  .stage-wrap{
+    position:sticky;top:0;z-index:20;
+    background:rgba(7,11,22,.78);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .stage{
+    max-width:1180px;margin:0 auto;padding:12px 24px;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  }
+  .stage-label{font-size:12px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;}
+  .stage-track{flex:1;min-width:200px;height:8px;border-radius:999px;background:#141d3a;overflow:hidden;position:relative;}
+  .stage-track i{
+    position:absolute;left:0;top:0;bottom:0;width:0%;
+    background:linear-gradient(90deg,var(--diag),var(--hypo),var(--method),var(--valid));
+    transition:width .25s ease;
+  }
+  .stage-name{font-size:13px;color:var(--ink);font-weight:600;min-width:140px;}
+  .stage-pct{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);min-width:44px;text-align:right;}
+
+  /* ---------- TIMELINE ---------- */
+  .timeline{position:relative;padding:8px 0 0 0;}
   .timeline::before{
-    content:"";position:absolute;left:22px;top:0;bottom:0;width:3px;
-    background:linear-gradient(180deg,var(--c1),var(--c2),var(--c3),var(--c4),var(--c5),var(--c6),var(--c7));
-    border-radius:3px;opacity:.85;
+    content:"";position:absolute;left:24px;top:0;bottom:0;width:3px;
+    background:linear-gradient(180deg,var(--diag),var(--fail),var(--insight),var(--hypo),var(--method),var(--valid),var(--res),var(--concl));
+    border-radius:3px;opacity:.9;
   }
   .step{
-    position:relative;padding:0 0 36px 64px;
-    opacity:0;transform:translateY(14px);
-    animation:rise .7s ease forwards;
+    position:relative;padding:0 0 34px 68px;
+    opacity:0;transform:translateY(16px);
+    animation:rise .6s ease forwards;
   }
-  .step:nth-child(1){animation-delay:.05s}
-  .step:nth-child(2){animation-delay:.12s}
-  .step:nth-child(3){animation-delay:.19s}
-  .step:nth-child(4){animation-delay:.26s}
-  .step:nth-child(5){animation-delay:.33s}
-  .step:nth-child(6){animation-delay:.40s}
-  .step:nth-child(7){animation-delay:.47s}
+  .step:nth-child(1){animation-delay:.04s}
+  .step:nth-child(2){animation-delay:.10s}
+  .step:nth-child(3){animation-delay:.16s}
+  .step:nth-child(4){animation-delay:.22s}
+  .step:nth-child(5){animation-delay:.28s}
+  .step:nth-child(6){animation-delay:.34s}
+  .step:nth-child(7){animation-delay:.40s}
+  .step:nth-child(8){animation-delay:.46s}
   @keyframes rise{to{opacity:1;transform:translateY(0)}}
 
   .dot{
-    position:absolute;left:12px;top:2px;width:24px;height:24px;border-radius:50%;
-    background:#0b1020;border:3px solid var(--c);
-    box-shadow:0 0 0 6px rgba(255,255,255,.03),0 0 24px var(--c);
+    position:absolute;left:13px;top:2px;width:26px;height:26px;border-radius:50%;
+    background:#070b16;border:3px solid var(--c);
+    box-shadow:0 0 0 6px rgba(255,255,255,.03),0 0 26px var(--c);
   }
   .dot::after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--c);}
 
   .card{
-    background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
+    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
     border:1px solid var(--line);border-left:4px solid var(--c);
-    border-radius:16px;padding:20px 22px;backdrop-filter:blur(6px);
+    border-radius:16px;padding:20px 22px;
     transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    cursor:pointer;
   }
   .card:hover{transform:translateX(6px);box-shadow:0 18px 50px -18px var(--c);border-color:var(--c);}
+
   .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px;}
   .phase{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--c);font-weight:700;}
-  .when{font-size:12px;color:var(--muted);background:rgba(255,255,255,.05);padding:3px 9px;border-radius:999px;}
+  .src{
+    font-size:11px;color:var(--muted);background:rgba(255,255,255,.05);
+    padding:3px 9px;border-radius:999px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
   .card h3{margin:0 0 6px;font-size:20px;letter-spacing:-0.01em;}
   .card p{margin:0;color:var(--muted);line-height:1.55;font-size:15px;}
-  .tags{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;}
-  .tag{
-    font-size:12px;color:#c9d3ff;background:rgba(91,140,255,.12);
-    border:1px solid rgba(91,140,255,.35);padding:4px 10px;border-radius:999px;
-  }
 
-  .progress-wrap{
-    position:sticky;top:0;z-index:10;
-    background:rgba(11,16,32,.75);backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--line);
+  /* ---------- METRICS ---------- */
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px;}
+  .metric{
+    background:rgba(255,255,255,.03);border:1px solid var(--line);
+    border-radius:12px;padding:10px 12px;
   }
-  .progress{max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:16px;}
-  .bar{flex:1;height:8px;border-radius:999px;background:#1b2450;overflow:hidden;}
-  .bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--c1),var(--c3),var(--c4),var(--c5));transition:width .2s linear;}
-  .pct{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);min-width:48px;text-align:right;}
+  .metric b{display:block;font-size:20px;font-variant-numeric:tabular-nums;color:var(--ink);}
+  .metric span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+  .metric .good{color:var(--ok);}
+  .metric .bad{color:var(--bad);}
 
-  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:40px;padding-top:24px;border-top:1px dashed var(--line);}
+  /* ---------- MINI BAR CHART ---------- */
+  .bars{margin-top:14px;display:flex;flex-direction:column;gap:6px;}
+  .bar-row{display:grid;grid-template-columns:130px 1fr 56px;gap:10px;align-items:center;font-size:12px;color:var(--muted);}
+  .bar-track{height:8px;background:#141d3a;border-radius:999px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:999px;background:var(--c);width:0;transition:width .8s ease;}
+  .bar-val{font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);}
+
+  /* ---------- DETAILS ---------- */
+  .details{
+    margin-top:0;max-height:0;overflow:hidden;
+    transition:max-height .35s ease, margin-top .35s ease, opacity .3s ease;
+    opacity:0;
+  }
+  .card.open .details{max-height:520px;margin-top:14px;opacity:1;}
+  .details ul{margin:0;padding-left:18px;color:var(--muted);line-height:1.55;font-size:14px;}
+  .details li{margin:4px 0;}
+  .details li b{color:var(--ink);}
+
+  .hint{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#5b6a92;margin-top:10px;}
+  .card.open .hint{display:none;}
+
+  /* ---------- LEGEND ---------- */
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:44px;padding-top:24px;border-top:1px dashed var(--line);}
   .legend span{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);}
   .legend i{width:10px;height:10px;border-radius:50%;display:inline-block;}
 
+  /* ---------- ARROW BETWEEN PAPERS ---------- */
+  .paper-transition{
+    margin:36px 0 8px;padding:18px 22px;
+    border:1px dashed var(--line);border-radius:14px;
+    display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+    background:rgba(0,209,178,.04);
+  }
+  .paper-transition strong{font-size:14px;letter-spacing:.04em;}
+  .paper-transition em{font-style:normal;color:var(--muted);font-size:13px;}
+
   @media (max-width:640px){
-    .step{padding-left:52px;}
-    .timeline::before{left:18px;}
-    .dot{left:8px;width:22px;height:22px;}
+    .step{padding-left:54px;}
+    .timeline::before{left:19px;}
+    .dot{left:8px;width:23px;height:23px;}
+    .bar-row{grid-template-columns:100px 1fr 48px;}
   }
 </style>
 </head>
 <body>
 
-<div class="progress-wrap">
-  <div class="progress">
-    <strong style="font-size:13px;letter-spacing:.08em;color:var(--muted)">PROJECT LIFECYCLE</strong>
-    <div class="bar"><i id="bar"></i></div>
-    <div class="pct" id="pct">0%</div>
+<!-- STAGE BAR -->
+<div class="stage-wrap">
+  <div class="stage">
+    <strong class="stage-label">Research stage</strong>
+    <div class="stage-track"><i id="stageFill"></i></div>
+    <div class="stage-name" id="stageName">Диагностика</div>
+    <div class="stage-pct" id="stagePct">0%</div>
   </div>
 </div>
 
 <main class="wrap">
   <header>
-    <h1>Цикл создания <span>высшего проекта</span></h1>
-    <p>От первой искры идеи до зрелого продукта и рефлексии — семь фаз, которые проходит любой выдающийся проект.</p>
+    <h1>От диагностики <span>к SCIR</span></h1>
+    <p>Как первая статья — <em>Diagnosing LLM-based Rerankers in Cold-Start Recommender Systems</em> — показала, что cross-encoder коллапсирует, и как вторая — <em>Cold-Start Recommendation: A Reproducible Multi-Criteria Evaluation Resource and Inductive Semantic-Collaborative Gating</em> — превратила этот провал в метод с HR@10 = 0.524–0.548 и латентностью 1.8 мс.</p>
+    <div class="hero-meta">
+      <span class="pill">Paper 1 · 2604.16318v1</span>
+      <span class="pill arrow">→</span>
+      <span class="pill">Paper 2 · SCIR</span>
+      <span class="pill">2 датасета · 5 seeds · N = 500</span>
+    </div>
   </header>
 
   <section class="timeline">
 
-    <article class="step" style="--c:var(--c1)">
+    <!-- 01 -->
+    <article class="step" style="--c:var(--diag)">
       <div class="dot"></div>
-      <div class="card">
-        <div class="meta"><span class="phase">Фаза 01 · Идея</span><span class="when">День 0–7</span></div>
-        <h3>Искра и формулировка видения</h3>
-        <p>Рождение концепции: зачем проект существует, какую боль решает, в чём его «высший» смысл.</p>
-        <div class="tags"><span class="tag">Vision</span><span class="tag">Brainstorm</span><span class="tag">One-pager</span></div>
+      <div class="card" onclick="this.classList.toggle('open')">
+        <div class="meta">
+          <span class="phase">01 · Диагностика</span>
+          <span class="src">Paper 1 · §III–IV</span>
+        </div>
+        <h3>Постановка задачи и гипотезы</h3>
+        <p>User cold-start в movie recommendation: дано профиль без истории, вернуть K = 10 фильмов. Четыре гипотезы — H1 retrieval coverage, H2 exposure bias, H3 score calibration, H4 pool size.</p>
+        <div class="metrics">
+          <div class="metric"><b>500</b><span>пользователей</span></div>
+          <div class="metric"><b>3</b><span>random seed</span></div>
+          <div class="metric"><b>49 157</b><span>фильмов в каталоге</span></div>
+          <div class="metric"><b>HR@10</b><span>главная метрика</span></div>
+        </div>
+        <div class="hint">▸ Нажми, чтобы увидеть детали</div>
+        <div class="details">
+          <ul>
+            <li><b>Датасет:</b> Serendipity-2018, 49 157 фильмов, 104 661 пользователь, 500 cold-start в тесте.</li>
+            <li><b>Pipeline:</b> all-MiniLM-L6-v2 (384d) → FAISS Flat → cross-encoder/ms-marco-MiniLM-L-6-v2.</li>
+            <li><b>Baselines:</b> Random, Popularity, Embedding Cosine, Candidates Only, Ours (CE Rerank).</li>
+            <li><b>Железо:</b> CPU-only Intel Xeon E5-2650 v4, без GPU — чтобы отразить resource-constrained деплой.</li>
+          </ul>
+        </div>
       </div>
     </article>
 
-    <article class="step" style="--c:var(--c2)">
+    <!-- 02 -->
+    <article class="step" style="--c:var(--fail)">
       <div class="dot"></div>
-      <div class="card">
-        <div class="meta"><span class="phase">Фаза 02 · Исследование</span><span class="when">Неделя 1–2</span></div>
-        <h3>Анализ рынка и пользователей</h3>
-        <p>Конкурентный анализ, интервью, JTBD, гипотезы. Определяем метрики успеха и границы scope.</p>
-        <div class="tags"><span class="tag">Research</span><span class="tag">JTBD</span><span class="tag">Metrics</span></div>
+      <div class="card" onclick="this.classList.toggle('open')">
+        <div class="meta">
+          <span class="phase">02 · Провал</span>
+          <span class="src">Paper 1 · §V–VI</span>
+        </div>
+        <h3>Cross-encoder коллапсирует: 33.5× разрыв</h3>
+        <p>Sophisticated reranker проигрывает простой популярности в 33.5 раза. Retrieval coverage — 10.9% против 60.9%. Reranker не улучшает даже неотранжированных кандидатов.</p>
+        <div class="bars">
+          <div class="bar-row">
+            <span>Popularity</span>
+            <div class="bar-track"><div class="bar-fill" data-w="100"></div></div>
+            <span class="bar-val">0.268</span>
+          </div>
+          <div class="bar-row">
+            <span>Ours (CE Rerank)</span>
+            <div class="bar-track"><div class="bar-fill" data-w="3" style="--c:var(--fail)"></div></div>
+            <span class="bar-val">0.008</span>
+          </div>
+        </div>
+        <div class="metrics">
+          <div class="metric"><b class="bad">0.109</b><span>Recall@200 (FAISS)</span></div>
+          <div class="metric"><b class="good">0.609</b><span>Recall@200 (baseline)</span></div>
+          <div class="metric"><b class="bad">3</b><span>уникальных top-1</span></div>
+          <div class="metric"><b>−0.593</b><span>Cohen's d</span></div>
+        </div>
+        <div class="hint">▸ Детали диагностики</div>
+        <div class="details">
+          <ul>
+            <li><b>HR@10:</b> Popularity 0.268 ± 0.018 vs Ours 0.008 ± 0.005 (p &lt; 10⁻⁹⁹).</li>
+            <li><b>Recall@200:</b> 0.109 (FAISS) vs 0.609 (baseline) — 5.6× разрыв, r = 0.89 с HR@10.</li>
+            <li><b>Exposure:</b> 3 уникальных top-1 на 500 пользователей; один фильм (175353) у 49%.</li>
+            <li><b>Score calibration:</b> mean diff 0.079, Cohen's d = 0.11, Spearman r = 0.004.</li>
+            <li><b>Median GT position:</b> 6717 — далеко за пределами cutoffs K = 200–1000.</li>
+          </ul>
+        </div>
       </div>
     </article>
 
-    <article class="step" style="--c:var(--c3)">
+    <!-- 03 -->
+    <article class="step" style="--c:var(--insight)">
       <div class="dot"></div>
-      <div class="card">
-        <div class="meta"><span class="phase">Фаза 03 · Дизайн</span><span class="when">Неделя 2–4</span></div>
-        <h3>Архитектура и прототип</h3>
-        <p>Информационная архитектура, wireframes, дизайн-система, кликабельный прототип.</p>
-        <div class="tags"><span class="tag">Figma</span><span class="tag">Design System</span><span class="tag">Prototype</span></div>
+      <div class="card" onclick="this.classList.toggle('open')">
+        <div class="meta">
+          <span class="phase">03 · Инсайт</span>
+          <span class="src">Paper 1 · §VI</span>
+        </div>
+        <h3>Три compounding failure modes</h3>
+        <p>Провал не в «слабой модели», а в трёх слоях пайплайна: retrieval coverage → score discrimination → exposure bias. Reranker не виноват — виноват pipeline.</p>
+        <div class="metrics">
+          <div class="metric"><b>1°</b><span>Retrieval bottleneck</span></div>
+          <div class="metric"><b>2°</b><span>Score collapse</span></div>
+          <div class="metric"><b>3°</b><span>Exposure concentration</span></div>
+          <div class="metric"><b>6717</b><span>median GT position</span></div>
+        </div>
+        <div class="hint">▸ Что именно сломалось</div>
+        <div class="details">
+          <ul>
+            <li><b>Root cause 1:</b> Sentence-BERT оптимизирован под semantic similarity, не под preference prediction — domain mismatch.</li>
+            <li><b>Root cause 2:</b> MS-MARCO cross-encoder переносится out-of-domain — web passages ≠ movie metadata.</li>
+            <li><b>Root cause 3:</b> metadata length bias — предметы с 10+ тегами систематически получают выше score.</li>
+            <li><b>Error taxonomy:</b> 38% genre over-weighting, 26% metadata length, 22% popularity artifacts, 14% шум.</li>
+          </ul>
+        </div>
       </div>
     </article>
 
-    <article class="step" style="--c:var(--c4)">
+    <!-- 04 -->
+    <article class="step" style="--c:var(--hypo)">
       <div class="dot"></div>
-      <div class="card">
-        <div class="meta"><span class="phase">Фаза 04 · Разработка</span><span class="when">Месяц 1–3</span></div>
-        <h3>Спринты и инженерная дисциплина</h3>
-        <p>MVP → итерации. CI/CD, code review, тесты, документация.</p>
-        <div class="tags"><span class="tag">React / Vue</span><span class="tag">CI/CD</span><span class="tag">Tests</span></div>
+      <div class="card" onclick="this.classList.toggle('open')">
+        <div class="meta">
+          <span class="phase">04 · Гипотеза</span>
+          <span class="src">Paper 2 · §4.2</span>
+        </div>
+        <h3>Что если объединить семантику и популярность?</h3>
+        <p>Два провала симметричны: pure content → semantic trap (obscure noise), pure popularity → popularity trap (no personalization). Байесовский компромисс: vMF × Zipf.</p>
+        <div class="metrics">
+          <div class="metric"><b>vMF</b><span>semantic likelihood</span></div>
+          <div class="metric"><b>Zipf</b><span>popularity prior</span></div>
+          <div class="metric"><b>γ(u)</b><span>adaptive gate</span></div>
+          <div class="metric"><b>0.45</b><span>γ_base</span></div>
+        </div>
+        <div class="hint">▸ Формула и интуиция</div>
+        <div class="details">
+          <ul>
+            <li><b>Bayes:</b> P(y=1 | u,i) ∝ P(u | i) · P(i).</li>
+            <li><b>vMF:</b> P(u | i) = C_d(κ) · exp(κ · ⟨u, e_i⟩).</li>
+            <li><b>Zipf:</b> P(i) ∝ (1 + pop_i)^α.</li>
+            <li><b>Гейт:</b> γ(u) = γ_base / (1 + 0.05 · min(|H_u|, 20)), γ_base = 0.45.</li>
+            <li><b>Итоговый score:</b> s(u,i) = (1−γ)·⟨u,e_i⟩ + γ·log(1+pop_i)/max log(1+pop_j).</li>
+          </ul>
+        </div>
       </div>
     </article>
 
-    <article class="step" style="--c:var(--c5)">
+    <!-- 05 -->
+    <article class="step" style="--c:var(--method)">
       <div class="dot"></div>
-      <div class="card">
-        <div class="meta"><span class="phase">Фаза 05 · Запуск</span><span class="when">Релиз</span></div>
-        <h3>Go-live и первые пользователи</h3>
-        <p>Деплой, мониторинг, аналитика, обратная связь. Ошибки — топливо для следующей итерации.</p>
-        <div class="tags"><span class="tag">Deploy</span><span class="tag">Analytics</span><span class="tag">Feedback</span></div>
+      <div class="card" onclick="this.classList.toggle('open')">
+        <div class="meta">
+          <span class="phase">05 · Метод</span>
+          <span class="src">Paper 2 · §4.2.3</span>
+        </div>
+        <h3>SCIR — Semantic-Collaborative Inductive Gating</h3>
+        <p>Closed-form, training-free, inductive. Recency-weighted семантический центроид + логарифмический popularity prior + user-adaptive gate. Миллисекунды на CPU, без retraining.</p>
+        <div class="metrics">
+          <div class="metric"><b class="good">1.8 ms</b><span>latency / user (CPU)</span></div>
+          <div class="metric"><b>384d</b><span>SBERT fidelity</span></div>
+          <div class="metric"><b>0</b><span>итераций обучения</span></div>
+          <div class="metric"><b>50k</b><span>каталог, full-catalog</span></div>
+        </div>
+        <div class="hint">▸ Механика</div>
+        <div class="details">
+          <ul>
+            <li><b>Centroid:</b> u = Σ w_i e_i / ‖Σ w_i e_i‖, w_i = 1 + 0.5 · pos(i)/|H_u| (recency).</li>
+            <li><b>Cold user:</b> u = Encoder(q_text)/‖Encoder(q_text)‖ — onboarding profile.</li>
+            <li><b>Gate:</b> γ(u) = 0.45 для strict cold; падает с ростом |H_u|.</li>
+            <li><b>Anti-collapse blend:</b> s_blend = β·s_RRF + (1−β)·s_CE, fallback при std(s_CE) ≤ 1e−5.</li>
+            <li><b>Full-catalog ranking:</b> |I| ≈ 50k–62k, без FAISS-префильтра.</li>
+          </ul>
+        </div>
       </div>
     </article>
 
-    <article class="step" style="--c:var(--c6)">
+    <!-- 06 -->
+    <article class="step" style="--c:var(--valid)">
       <div class="dot"></div>
-      <div class="card">
-        <div class="meta"><span class="phase">Фаза 06 · Рост</span><span class="when">Месяц 3–12</span></div>
-        <h3>Масштабирование и зрелость</h3>
-        <p>Оптимизация, A/B-тесты, новые фичи, удержание. Проект превращается в продукт.</p>
-        <div class="tags"><span class="tag">A/B</span><span class="tag">Scale</span><span class="tag">Retention</span></div>
+      <div class="card" onclick="this.classList.toggle('open')">
+        <div class="meta">
+          <span class="phase">06 · Валидация</span>
+          <span class="src">Paper 2 · §5.2–5.4</span>
+        </div>
+        <h3>SCIR обгоняет baselines в 2–3×</h3>
+        <p>Full-catalog, 5 seeds, N = 500 на MovieLens-25M и Serendipity-2018. HR@10 = 0.524–0.548, nDCG@10 = 0.124–0.160 — при p &lt; 10⁻¹⁵ против EASE, MF-SVD, DropoutNet.</p>
+        <div class="bars">
+          <div class="bar-row">
+            <span>SCIR</span>
+            <div class="bar-track"><div class="bar-fill" data-w="100" style="--c:var(--valid)"></div></div>
+            <span class="bar-val">0.548</span>
+          </div>
+          <div class="bar-row">
+            <span>MF-SVD</span>
+            <div class="bar-track"><div class="bar-fill" data-w="43" style="--c:var(--diag)"></div></div>
+            <span class="bar-val">0.234</span>
+          </div>
+          <div class="bar-row">
+            <span>EASE</span>
+            <div class="bar-track"><div class="bar-fill" data-w="38" style="--c:var(--diag)"></div></div>
+            <span class="bar-val">0.210</span>
+          </div>
+          <div class="bar-row">
+            <span>DropoutNet</span>
+            <div class="bar-track"><div class="bar-fill" data-w="20" style="--c:var(--diag)"></div></div>
+            <span class="bar-val">0.110</span>
+          </div>
+        </div>
+        <div class="metrics">
+          <div class="metric"><b class="good">0.548</b><span>HR@10 · ML-25M</span></div>
+          <div class="metric"><b class="good">0.524</b><span>HR@10 · Serendipity</span></div>
+          <div class="metric"><b class="good">0.800</b><span>HR@10 · S_both</span></div>
+          <div class="metric"><b class="good">0.745</b><span>Serendipity@10</span></div>
+        </div>
+        <div class="hint">▸ Детали по сценариям</div>
+        <div class="details">
+          <ul>
+            <li><b>MovieLens-25M:</b> HR@10 = 0.5480 ± 0.0546, nDCG@10 = 0.1243; p = 4.10·10⁻²⁵ vs MF-SVD.</li>
+            <li><b>Serendipity-2018:</b> HR@10 = 0.5240 ± 0.0301, nDCG@10 = 0.1599; p = 8.98·10⁻¹⁶ vs MF-SVD.</li>
+            <li><b>S_user / S_item / S_both:</b> HR@10 = 0.625 / 0.525 / 0.800.</li>
+            <li><b>Beyond-accuracy:</b> CatCov = 0.0017, Gini = 0.669, Serendipity = 0.745 — все гейты пройдены.</li>
+          </ul>
+        </div>
       </div>
     </article>
 
-    <article class="step" style="--c:var(--c7)">
+    <!-- 07 -->
+    <article class="step" style="--c:var(--res)">
       <div class="dot"></div>
-      <div class="card">
-        <div class="meta"><span class="phase">Фаза 07 · Рефлексия</span><span class="when">Цикл замыкается</span></div>
-        <h3>Ретроспектива и новая искра</h3>
-        <p>Что сработало, что нет, какие знания забираем в следующий цикл.</p>
-        <div class="tags"><span class="tag">Retro</span><span class="tag">Lessons</span><span class="tag">Next cycle</span></div>
+      <div class="card" onclick="this.classList.toggle('open')">
+        <div class="meta">
+          <span class="phase">07 · Ресурс</span>
+          <span class="src">Paper 2 · §3.5</span>
+        </div>
+        <h3>Open evaluation resource</h3>
+        <p>Чтобы результаты воспроизводились, вторая статья отдаёт не только метод, но и весь стенд: splits, embeddings, FAISS-индексы, metric suite, Docker/CI.</p>
+        <div class="metrics">
+          <div class="metric"><b>70/10/20</b><span>temporal split</span></div>
+          <div class="metric"><b>110k+</b><span>item embeddings</span></div>
+          <div class="metric"><b>11</b><span>метрик</span></div>
+          <div class="metric"><b>9</b><span>baselines</span></div>
+        </div>
+        <div class="hint">▸ Что отдаётся</div>
+        <div class="details">
+          <ul>
+            <li><b>Splits:</b> детерминированные 70/10/20 для MovieLens-25M и Serendipity-2018.</li>
+            <li><b>Partitioning:</b> S_user, S_item, S_both — формально раздельные.</li>
+            <li><b>Artifacts:</b> 384d SBERT embeddings, FAISS-индексы, master JSON конфиги.</li>
+            <li><b>Harness:</b> Random, Popularity, BM25, EmbCos, LightGCN, DropoutNet, ItemKNN, EASE, MF-SVD.</li>
+            <li><b>Repro:</b> Dockerfile, docker-compose, GitHub Actions CI, unified seeds.</li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <!-- 08 -->
+    <article class="step" style="--c:var(--concl)">
+      <div class="dot"></div>
+      <div class="card" onclick="this.classList.toggle('open')">
+        <div class="meta">
+          <span class="phase">08 · Вывод</span>
+          <span class="src">Paper 1 → Paper 2</span>
+        </div>
+        <h3>Провал стал методом</h3>
+        <p>Первая статья сказала «cross-encoder не работает в cold-start». Вторая ответила: «потому что pipeline misaligned — вот closed-form inductive fix, воспроизводимый стенд и multi-criteria гейты».</p>
+        <div class="bars">
+          <div class="bar-row">
+            <span>Paper 1 · Ours</span>
+            <div class="bar-track"><div class="bar-fill" data-w="2" style="--c:var(--fail)"></div></div>
+            <span class="bar-val">0.008</span>
+          </div>
+          <div class="bar-row">
+            <span>Paper 2 · SCIR</span>
+            <div class="bar-track"><div class="bar-fill" data-w="100" style="--c:var(--concl)"></div></div>
+            <span class="bar-val">0.548</span>
+          </div>
+        </div>
+        <div class="metrics">
+          <div class="metric"><b class="good">68.5×</b><span>HR@10 uplift</span></div>
+          <div class="metric"><b class="good">5.6×</b><span>recall gap closed</span></div>
+          <div class="metric"><b class="good">4000×</b><span>latency vs CE</span></div>
+          <div class="metric"><b class="good">0</b><span>retraining</span></div>
+        </div>
+        <div class="hint">▸ Смысл перехода</div>
+        <div class="details">
+          <ul>
+            <li><b>Paper 1:</b> диагностический шаблон — coverage, exposure, calibration, pool-size ablations.</li>
+            <li><b>Paper 2:</b> методологический ответ — closed-form gating + evaluation resource.</li>
+            <li><b>Сдвиг вклада:</b> от «что сломано» к «как чинить + как воспроизводить».</li>
+            <li><b>Практический вывод:</b> инвестировать в retrieval, калибровку, гейты — не в размер модели.</li>
+          </ul>
+        </div>
       </div>
     </article>
 
   </section>
 
+  <div class="paper-transition">
+    <strong>Paper 1 → Paper 2:</strong>
+    <em>диагностика провала cross-encoder → формализация проблемы через Bayes (vMF × Zipf) → closed-form метод → full-catalog валидация → воспроизводимый ресурс.</em>
+  </div>
+
   <div class="legend">
-    <span><i style="background:var(--c1)"></i>Идея</span>
-    <span><i style="background:var(--c2)"></i>Исследование</span>
-    <span><i style="background:var(--c3)"></i>Дизайн</span>
-    <span><i style="background:var(--c4)"></i>Разработка</span>
-    <span><i style="background:var(--c5)"></i>Запуск</span>
-    <span><i style="background:var(--c6)"></i>Рост</span>
-    <span><i style="background:var(--c7)"></i>Рефлексия</span>
+    <span><i style="background:var(--diag)"></i>Диагностика</span>
+    <span><i style="background:var(--fail)"></i>Провал</span>
+    <span><i style="background:var(--insight)"></i>Инсайт</span>
+    <span><i style="background:var(--hypo)"></i>Гипотеза</span>
+    <span><i style="background:var(--method)"></i>Метод SCIR</span>
+    <span><i style="background:var(--valid)"></i>Валидация</span>
+    <span><i style="background:var(--res)"></i>Ресурс</span>
+    <span><i style="background:var(--concl)"></i>Вывод</span>
   </div>
 </main>
 
 <script>
-  const bar = document.getElementById('bar');
-  const pct = document.getElementById('pct');
-
-  function updateProgress(){
-    const h = document.documentElement;
-    const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight || 1);
-    const v = Math.min(100, Math.max(0, scrolled * 100));
-    bar.style.width = v + '%';
-    pct.textContent = Math.round(v) + '%';
-  }
-  document.addEventListener('scroll', updateProgress, {passive:true});
-  updateProgress();
-
-  document.querySelectorAll('.step').forEach(step => {
-    step.addEventListener('mouseenter', () => {
-      step.querySelector('.card').style.boxShadow =
-        '0 24px 60px -20px ' + getComputedStyle(step).getPropertyValue('--c');
+  // ---------- Мини-бары: заполняются при появлении в viewport ----------
+  const bars = document.querySelectorAll('.bar-fill');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        el.style.width = (el.dataset.w || 0) + '%';
+        io.unobserve(el);
+      }
     });
-    step.addEventListener('mouseleave', () => {
-      step.querySelector('.card').style.boxShadow = '';
+  }, {threshold: 0.25});
+  bars.forEach(b => io.observe(b));
+
+  // ---------- Stage bar: показывает исследовательскую стадию по скроллу ----------
+  const steps = Array.from(document.querySelectorAll('.step'));
+  const stageFill = document.getElementById('stageFill');
+  const stageName = document.getElementById('stageName');
+  const stagePct  = document.getElementById('stagePct');
+
+  const stageLabels = [
+    'Диагностика', 'Провал', 'Инсайт', 'Гипотеза',
+    'Метод SCIR', 'Валидация', 'Ресурс', 'Вывод'
+  ];
+
+  function updateStage(){
+    const scrollY = window.scrollY + window.innerHeight * 0.35;
+    let current = 0;
+    steps.forEach((s, i) => {
+      const top = s.getBoundingClientRect().top + window.scrollY;
+      if (scrollY >= top) current = i;
+    });
+    const pct = Math.round(((current + 1) / steps.length) * 100);
+    stageFill.style.width = pct + '%';
+    stageName.textContent = stageLabels[current] || stageLabels[stageLabels.length - 1];
+    stagePct.textContent = pct + '%';
+  }
+  document.addEventListener('scroll', updateStage, {passive:true});
+  window.addEventListener('resize', updateStage);
+  updateStage();
+
+  // ---------- Плавная прокрутка к карточке по клику на легенду ----------
+  document.querySelectorAll('.legend span').forEach((el, i) => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => {
+      const target = steps[i];
+      if (target) target.scrollIntoView({behavior:'smooth', block:'center'});
     });
   });
 </script>
